@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我们的甜蜜时光 - 我们一起做</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Noto Serif SC', 'Inter', sans-serif;
+        }
+        
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .romantic-gradient {
+            background: linear-gradient(135deg, #FFB6C1 0%, #FFD700 50%, #FFA500 100%);
+        }
+        
+        .sky-gradient {
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 50%, #191970 100%);
+        }
+        
+        .dark-gradient {
+            background: linear-gradient(135deg, #9370DB 0%, #4B0082 50%, #2F2F2F 100%);
+        }
+        
+        .light-gradient {
+            background: linear-gradient(135deg, #98FB98 0%, #32CD32 50%, #F5FFFA 100%);
+        }
+        
+        .warm-gradient {
+            background: linear-gradient(135deg, #FFA500 0%, #FF6347 50%, #FFF8DC 100%);
+        }
+        
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .task-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .task-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .task-card.completed-by-none {
+            background: rgba(128, 128, 128, 0.2);
+            border-color: rgba(128, 128, 128, 0.3);
+        }
+        
+        .task-card.completed-by-one {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.3));
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+        
+        .task-card.completed-by-both {
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.4), rgba(255, 215, 0, 0.4));
+            border-color: rgba(255, 182, 193, 0.6);
+        }
+        
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .task-checkbox.checked {
+            background: rgba(255, 215, 0, 0.8);
+            border-color: rgba(255, 215, 0, 1);
+            color: white;
+        }
+        
+        .task-checkbox:hover {
+            transform: scale(1.1);
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform-origin: 50% 50%;
+        }
+        
+        .celebration-modal {
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, rgba(255, 182, 193, 0.3) 100%);
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 2px;
+        }
+        
+        .filter-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .filter-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+        
+        .celebrate-animation {
+            animation: celebrate 0.6s ease-in-out;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #FFD700;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen transition-all duration-1000 romantic-gradient">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 liquid-glass mx-4 mt-4 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-2xl font-bold text-white">💕 我们的甜蜜时光</h1>
+                <span id="currentUser" class="text-white/80 text-sm"></span>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                <a href="main.html" class="nav-item text-white hover:text-white/80 font-medium">首页</a>
+                <a href="write.html" class="nav-item text-white hover:text-white/80 font-medium">写日常</a>
+                <a href="together.html" class="nav-item active text-white hover:text-white/80 font-medium">我们一起做</a>
+                <a href="report.html" class="nav-item text-white hover:text-white/80 font-medium">一键报备</a>
+                <button id="logoutBtn" class="text-white/80 hover:text-white transition-colors">退出</button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 主内容区域 -->
+    <main class="pt-24 pb-8 px-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- 标题区域 -->
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-white mb-4 floating-animation">
+                    我们一起做的事情 💑
+                </h2>
+                <p class="text-white/80 text-lg">
+                    完成每一个小目标，让我们的爱情更加甜蜜
+                </p>
+            </div>
+            
+            <!-- 进度统计 -->
+            <div class="liquid-glass p-6 mb-8">
+                <div class="flex flex-col lg:flex-row items-center justify-between">
+                    <div class="flex items-center space-x-8 mb-4 lg:mb-0">
+                        <!-- 进度环 -->
+                        <div class="relative">
+                            <svg class="progress-ring w-24 h-24" viewBox="0 0 120 120">
+                                <circle class="progress-ring-circle" 
+                                        stroke="rgba(255, 255, 255, 0.3)" 
+                                        stroke-width="8" 
+                                        fill="transparent" 
+                                        r="52" 
+                                        cx="60" 
+                                        cy="60"/>
+                                <circle id="progressCircle"
+                                        class="progress-ring-circle" 
+                                        stroke="#FFD700" 
+                                        stroke-width="8" 
+                                        fill="transparent" 
+                                        r="52" 
+                                        cx="60" 
+                                        cy="60"
+                                        stroke-dasharray="326.73"
+                                        stroke-dashoffset="326.73"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span id="progressPercent" class="text-2xl font-bold text-white">0%</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 统计信息 -->
+                        <div class="text-white">
+                            <div class="text-3xl font-bold mb-2">
+                                <span id="completedCount">0</span> / <span id="totalCount">200</span>
+                            </div>
+                            <div class="text-white/80">已完成任务</div>
+                            <div class="mt-2 text-sm">
+                                <div>狮王完成: <span id="lionCount">0</span></div>
+                                <div>小鱼完成: <span id="fishCount">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 筛选按钮 -->
+                    <div class="flex flex-wrap gap-2">
+                        <button id="filterAll" class="filter-btn active px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg">
+                            全部
+                        </button>
+                        <button id="filterNone" class="filter-btn px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg">
+                            未完成
+                        </button>
+                        <button id="filterOne" class="filter-btn px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg">
+                            一方完成
+                        </button>
+                        <button id="filterBoth" class="filter-btn px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg">
+                            双方完成
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 任务网格 -->
+            <div id="taskGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- 任务卡片将动态生成 -->
+            </div>
+            
+            <!-- 加载更多提示 -->
+            <div id="loadingMessage" class="text-center py-8 text-white/60">
+                <div class="text-2xl mb-2">💕</div>
+                <p>正在加载更多甜蜜任务...</p>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 庆祝弹窗 -->
+    <div id="celebrationModal" class="fixed inset-0 celebration-modal backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="liquid-glass p-8 max-w-md mx-4 text-center celebrate-animation">
+            <div class="text-6xl mb-4">🎉</div>
+            <h3 class="text-2xl font-bold text-white mb-4">恭喜恭喜！</h3>
+            <p class="text-white/80 mb-6">我们又一起做了一件事！💕</p>
+            <p id="celebrationTask" class="text-white/90 font-medium mb-6"></p>
+            <button onclick="closeCelebration()" 
+                    class="px-6 py-3 bg-gradient-to-r from-pink-400 to-yellow-400 hover:from-pink-500 hover:to-yellow-500 text-white rounded-lg">
+                继续加油 💪
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // 全局变量
+        let currentUser = '';
+        let userIdentity = '';
+        let coupleTasks = [];
+        let currentFilter = 'all';
+        
+        // 用户配置
+        const userConfig = {
+            '林粤冬': { identity: '狮王' },
+            '蒲振宇': { identity: '小鱼' }
+        };
+        
+        // 200个情侣任务清单
+        const defaultTasks = [
+            "一起看日出", "一起做早餐", "一起看电影", "一起散步", "一起做饭",
+            "一起旅行", "一起拍照", "一起唱歌", "一起跳舞", "一起运动",
+            "一起读书", "一起画画", "一起写日记", "一起种植物", "一起养宠物",
+            "一起逛街", "一起购物", "一起喝咖啡", "一起品茶", "一起喝酒",
+            "一起做饭", "一起烘焙", "一起野餐", "一起露营", "一起看星星",
+            "一起赏月", "一起听雨", "一起赏雪", "一起堆雪人", "一起打雪仗",
+            "一起游泳", "一起滑雪", "一起滑冰", "一起骑车", "一起开车",
+            "一起坐火车", "一起坐飞机", "一起坐船", "一起爬山", "一起看海",
+            "一起钓鱼", "一起烧烤", "一起聚餐", "一起玩游戏", "一起拼图",
+            "一起下棋", "一起打牌", "一起打麻将", "一起K歌", "一起跳舞",
+            "一起健身", "一起瑜伽", "一起跑步", "一起打球", "一起游泳",
+            "一起骑车", "一起爬山", "一起徒步", "一起露营", "一起看演唱会",
+            "一起看电影首映", "一起参加节日", "一起庆祝生日", "一起过纪念日", "一起过情人节",
+            "一起过圣诞节", "一起过新年", "一起过中秋", "一起过国庆", "一起过端午",
+            "一起扫墓", "一起祭祖", "一起拜佛", "一起祈福", "一起许愿",
+            "一起放烟花", "一起放鞭炮", "一起点灯笼", "一起猜灯谜", "一起赏月",
+            "一起包饺子", "一起包粽子", "一起做月饼", "一起做汤圆", "一起做年糕",
+            "一起做腊八粥", "一起做清明果", "一起做重阳糕", "一起做元宵", "一起做春卷",
+            "一起做面条", "一起做饺子", "一起做包子", "一起做馒头", "一起做花卷",
+            "一起做蛋糕", "一起做饼干", "一起做面包", "一起做披萨", "一起做汉堡",
+            "一起做寿司", "一起做拉面", "一起做火锅", "一起做烧烤", "一起做麻辣烫",
+            "一起做串串香", "一起做冒菜", "一起做水煮鱼", "一起做麻婆豆腐", "一起做宫保鸡丁",
+            "一起做糖醋排骨", "一起做鱼香肉丝", "一起做回锅肉", "一起做水煮肉片", "一起做夫妻肺片",
+            "一起做东坡肉", "一起做叫花鸡", "一起做白切鸡", "一起做盐焗鸡", "一起做烧鹅",
+            "一起做烤鸭", "一起做烧肉", "一起做叉烧", "一起做腊肠", "一起做腊肉",
+            "一起做香肠", "一起做火腿", "一起做培根", "一起做牛排", "一起做羊排",
+            "一起做猪排", "一起做鸡排", "一起做鱼排", "一起做虾", "一起做蟹",
+            "一起做贝类", "一起做螺类", "一起做章鱼", "一起做鱿鱼", "一起做墨鱼",
+            "一起做海带", "一起做紫菜", "一起做海苔", "一起做海藻", "一起做海蜇",
+            "一起做海参", "一起做鲍鱼", "一起做鱼翅", "一起做燕窝", "一起做虫草",
+            "一起做人参", "一起做鹿茸", "一起做灵芝", "一起做枸杞", "一起做当归",
+            "一起做黄芪", "一起做党参", "一起做沙参", "一起做西洋参", "一起做太子参",
+            "一起做红枣", "一起做桂圆", "一起做莲子", "一起做百合", "一起做银耳",
+            "一起做木耳", "一起做香菇", "一起做蘑菇", "一起做金针菇", "一起做杏鲍菇",
+            "一起做鸡腿菇", "一起做茶树菇", "一起做猴头菇", "一起做松茸", "一起做灵芝孢",
+            "一起做蜂蜜", "一起做蜂王浆", "一起做蜂胶", "一起做花粉", "一起做蜂蜡",
+            "一起做燕窝", "一起做阿胶", "一起做鹿角胶", "一起做龟板胶", "一起做鳖甲胶",
+            "一起做牡蛎", "一起做蛤蜊", "一起做蛏子", "一起做蚶子", "一起做淡菜",
+            "一起做干贝", "一起做鱼肚", "一起做鱼唇", "一起做鱼骨", "一起做鱼皮"
+        ];
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            initializeTasks();
+            renderTasks();
+            updateProgress();
+            initializeEventListeners();
+        });
+        
+        // 初始化应用
+        function initializeApp() {
+            currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            userIdentity = userConfig[currentUser].identity;
+            document.getElementById('currentUser').textContent = `${currentUser} (${userIdentity})`;
+            
+            // 设置页面配色
+            const savedScheme = localStorage.getItem('colorScheme') || 'romantic';
+            applyColorScheme(savedScheme);
+        }
+        
+        // 应用配色方案
+        function applyColorScheme(scheme) {
+            const body = document.body;
+            body.className = body.className.replace(/\b\w+-gradient\b/g, '');
+            body.classList.add(`${scheme}-gradient`);
+        }
+        
+        // 初始化任务数据
+        function initializeTasks() {
+            const savedTasks = localStorage.getItem('coupleTasks');
+            
+            if (savedTasks) {
+                coupleTasks = JSON.parse(savedTasks);
+            } else {
+                // 首次初始化
+                coupleTasks = defaultTasks.map((task, index) => ({
+                    id: index + 1,
+                    task: task,
+                    completedBy: [],
+                    isFullyCompleted: false
+                }));
+                localStorage.setItem('coupleTasks', JSON.stringify(coupleTasks));
+            }
+        }
+        
+        // 渲染任务列表
+        function renderTasks() {
+            const taskGrid = document.getElementById('taskGrid');
+            const loadingMessage = document.getElementById('loadingMessage');
+            
+            // 根据筛选条件过滤任务
+            let filteredTasks = coupleTasks;
+            if (currentFilter === 'none') {
+                filteredTasks = coupleTasks.filter(task => task.completedBy.length === 0);
+            } else if (currentFilter === 'one') {
+                filteredTasks = coupleTasks.filter(task => task.completedBy.length === 1);
+            } else if (currentFilter === 'both') {
+                filteredTasks = coupleTasks.filter(task => task.completedBy.length === 2);
+            }
+            
+            // 分批渲染以提高性能
+            taskGrid.innerHTML = '';
+            loadingMessage.classList.remove('hidden');
+            
+            setTimeout(() => {
+                taskGrid.innerHTML = filteredTasks.map(task => {
+                    const isCompletedByUser = task.completedBy.includes(currentUser);
+                    const completionClass = task.completedBy.length === 0 ? 'completed-by-none' :
+                                           task.completedBy.length === 1 ? 'completed-by-one' :
+                                           'completed-by-both';
+                    
+                    return `
+                        <div class="task-card ${completionClass}" onclick="toggleTask(${task.id})">
+                            <div class="flex items-start space-x-3">
+                                <div class="task-checkbox ${isCompletedByUser ? 'checked' : ''}" onclick="event.stopPropagation()">
+                                    ${isCompletedByUser ? '✓' : ''}
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-white font-medium mb-2">${task.task}</h3>
+                                    <div class="flex items-center space-x-2 text-sm text-white/70">
+                                        <span>🦁 ${task.completedBy.includes('林粤冬') ? '✓' : '○'}</span>
+                                        <span>🐟 ${task.completedBy.includes('蒲振宇') ? '✓' : '○'}</span>
+                                        <span class="ml-auto">
+                                            ${task.completedBy.length === 0 ? '未开始' :
+                                              task.completedBy.length === 1 ? '进行中' :
+                                              '已完成'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            ${task.isFullyCompleted ? '<div class="absolute top-2 right-2 text-yellow-400 text-lg">💖</div>' : ''}
+                        </div>
+                    `;
+                }).join('');
+                
+                loadingMessage.classList.add('hidden');
+                
+                // 添加入场动画
+                anime({
+                    targets: '.task-card',
+                    scale: [0.8, 1],
+                    opacity: [0, 1],
+                    delay: anime.stagger(50),
+                    duration: 600,
+                    easing: 'easeOutElastic(1, .8)'
+                });
+            }, 500);
+        }
+        
+        // 切换任务完成状态
+        function toggleTask(taskId) {
+            const task = coupleTasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            const isCompleted = task.completedBy.includes(currentUser);
+            
+            if (isCompleted) {
+                // 取消完成
+                task.completedBy = task.completedBy.filter(user => user !== currentUser);
+            } else {
+                // 标记完成
+                task.completedBy.push(currentUser);
+                
+                // 检查是否双方都完成
+                if (task.completedBy.length === 2) {
+                    task.isFullyCompleted = true;
+                    showCelebration(task.task);
+                }
+            }
+            
+            // 保存到本地存储
+            localStorage.setItem('coupleTasks', JSON.stringify(coupleTasks));
+            
+            // 更新界面
+            renderTasks();
+            updateProgress();
+        }
+        
+        // 更新进度统计
+        function updateProgress() {
+            const totalTasks = coupleTasks.length;
+            const completedByBoth = coupleTasks.filter(task => task.completedBy.length === 2).length;
+            const completedByLion = coupleTasks.filter(task => task.completedBy.includes('林粤冬')).length;
+            const completedByFish = coupleTasks.filter(task => task.completedBy.includes('蒲振宇')).length;
+            
+            const progressPercent = Math.round((completedByBoth / totalTasks) * 100);
+            
+            // 更新数字
+            document.getElementById('completedCount').textContent = completedByBoth;
+            document.getElementById('totalCount').textContent = totalTasks;
+            document.getElementById('lionCount').textContent = completedByLion;
+            document.getElementById('fishCount').textContent = completedByFish;
+            document.getElementById('progressPercent').textContent = progressPercent + '%';
+            
+            // 更新进度环
+            const circle = document.getElementById('progressCircle');
+            const circumference = 2 * Math.PI * 52;
+            const offset = circumference - (progressPercent / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            
+            // 进度环动画
+            anime({
+                targets: '#progressCircle',
+                strokeDashoffset: [circumference, offset],
+                duration: 1000,
+                easing: 'easeOutElastic(1, .8)'
+            });
+        }
+        
+        // 显示庆祝弹窗
+        function showCelebration(taskName) {
+            document.getElementById('celebrationTask').textContent = taskName;
+            document.getElementById('celebrationModal').classList.remove('hidden');
+            
+            // 创建粒子效果
+            createParticles();
+            
+            // 播放庆祝音效
+            playCelebrationSound();
+        }
+        
+        // 关闭庆祝弹窗
+        function closeCelebration() {
+            document.getElementById('celebrationModal').classList.add('hidden');
+            
+            // 清除粒子
+            document.querySelectorAll('.particle').forEach(p => p.remove());
+        }
+        
+        // 创建粒子效果
+        function createParticles() {
+            const modal = document.getElementById('celebrationModal');
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                
+                modal.appendChild(particle);
+                
+                // 粒子动画
+                anime({
+                    targets: particle,
+                    translateX: (Math.random() - 0.5) * 200,
+                    translateY: (Math.random() - 0.5) * 200,
+                    scale: [1, 0],
+                    opacity: [1, 0],
+                    duration: 2000,
+                    easing: 'easeOutQuad',
+                    complete: () => particle.remove()
+                });
+            }
+        }
+        
+        // 播放庆祝音效
+        function playCelebrationSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // 播放欢快的旋律
+                const melody = [
+                    { freq: 523.25, time: 0 },      // C5
+                    { freq: 659.25, time: 0.1 },    // E5
+                    { freq: 783.99, time: 0.2 },    // G5
+                    { freq: 1046.50, time: 0.3 },   // C6
+                    { freq: 783.99, time: 0.5 },    // G5
+                    { freq: 659.25, time: 0.6 },    // E5
+                    { freq: 523.25, time: 0.7 }     // C5
+                ];
+                
+                melody.forEach(note => {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.setValueAtTime(note.freq, audioContext.currentTime);
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.15);
+                    }, note.time * 1000);
+                });
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+        
+        // 初始化事件监听器
+        function initializeEventListeners() {
+            // 退出登录
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // 筛选按钮
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 更新按钮状态
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 更新筛选状态
+                    currentFilter = this.id.replace('filter', '').toLowerCase();
+                    renderTasks();
+                });
+            });
+            
+            // 点击庆祝弹窗背景关闭
+            document.getElementById('celebrationModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeCelebration();
+                }
+            });
+        }
+        
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('loginTime');
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // 页面加载完成后的入场动画
+        anime({
+            targets: '.liquid-glass',
+            translateY: [50, 0],
+            opacity: [0, 1],
+            duration: 800,
+            easing: 'easeOutElastic(1, .8)'
+        });
+    </script>
+</body>
+</html>

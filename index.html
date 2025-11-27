@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我们的甜蜜时光 - 登录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://unpkg.com/splitting@1.0.6/dist/splitting.css" rel="stylesheet">
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Noto Serif SC', 'Inter', sans-serif;
+        }
+        
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .romantic-gradient {
+            background: linear-gradient(135deg, #FFB6C1 0%, #FFD700 50%, #FFA500 100%);
+        }
+        
+        .sky-gradient {
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 50%, #191970 100%);
+        }
+        
+        .dark-gradient {
+            background: linear-gradient(135deg, #9370DB 0%, #4B0082 50%, #2F2F2F 100%);
+        }
+        
+        .light-gradient {
+            background: linear-gradient(135deg, #98FB98 0%, #32CD32 50%, #F5FFFA 100%);
+        }
+        
+        .warm-gradient {
+            background: linear-gradient(135deg, #FFA500 0%, #FF6347 50%, #FFF8DC 100%);
+        }
+        
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse-glow {
+            from { box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); }
+            to { box-shadow: 0 0 40px rgba(255, 255, 255, 0.6); }
+        }
+        
+        .text-glow {
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .bg-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .input-focus {
+            transition: all 0.3s ease;
+        }
+        
+        .input-focus:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-bounce {
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .btn-bounce:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-bounce:active {
+            transform: scale(0.95);
+        }
+        
+        .scheme-selector {
+            transition: all 0.3s ease;
+        }
+        
+        .scheme-selector:hover {
+            transform: scale(1.1);
+        }
+        
+        .scheme-selector.active {
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center overflow-hidden transition-all duration-1000 romantic-gradient">
+    <!-- 背景粒子效果 -->
+    <div id="particles-container" class="absolute inset-0 z-0"></div>
+    
+    <!-- 主登录容器 -->
+    <div class="relative z-10 w-full max-w-md mx-4">
+        <!-- 色调选择器 -->
+        <div class="mb-8 flex justify-center space-x-4">
+            <div class="scheme-selector w-8 h-8 rounded-full romantic-gradient cursor-pointer active" 
+                 data-scheme="romantic" title="浪漫粉金"></div>
+            <div class="scheme-selector w-8 h-8 rounded-full sky-gradient cursor-pointer" 
+                 data-scheme="sky" title="天空蓝调"></div>
+            <div class="scheme-selector w-8 h-8 rounded-full dark-gradient cursor-pointer" 
+                 data-scheme="dark" title="暗夜浪漫"></div>
+            <div class="scheme-selector w-8 h-8 rounded-full light-gradient cursor-pointer" 
+                 data-scheme="light" title="明亮清新"></div>
+            <div class="scheme-selector w-8 h-8 rounded-full warm-gradient cursor-pointer" 
+                 data-scheme="warm" title="温暖橙黄"></div>
+        </div>
+        
+        <!-- 登录表单容器 -->
+        <div class="liquid-glass p-8 floating-animation">
+            <!-- 标题 -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-white text-glow mb-2" data-splitting>我们的甜蜜时光</h1>
+                <p class="text-white/80 text-lg">只属于我们的私密空间 💕</p>
+            </div>
+            
+            <!-- 登录表单 -->
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-white/90 text-sm font-medium mb-2">用户名</label>
+                    <input type="text" id="username" 
+                           class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 input-focus"
+                           placeholder="请输入您的用户名" required>
+                </div>
+                
+                <div>
+                    <label class="block text-white/90 text-sm font-medium mb-2">密码</label>
+                    <input type="password" id="password" 
+                           class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 input-focus"
+                           placeholder="请输入您的密码" required>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full py-3 px-6 bg-white/30 hover:bg-white/40 text-white font-semibold rounded-lg btn-bounce pulse-glow">
+                    进入我们的世界 ✨
+                </button>
+            </form>
+            
+            <!-- 申请访问链接 -->
+            <div class="mt-6 text-center">
+                <a href="mailto:lindonfrozenwinter@gmail.com?subject=申请访问情侣网站&body=亲爱的，我想申请访问我们的甜蜜时光网站。"
+                   class="text-white/70 hover:text-white transition-colors duration-300 text-sm underline">
+                    我要申请访问权限 💌
+                </a>
+            </div>
+            
+            <!-- 错误提示 -->
+            <div id="errorMessage" class="mt-4 text-center text-red-200 text-sm hidden"></div>
+        </div>
+        
+        <!-- 更新日志 -->
+        <div class="mt-8 text-center">
+            <button id="changelogBtn" class="text-white/60 hover:text-white text-xs underline">
+                查看更新日志 📋
+            </button>
+        </div>
+    </div>
+    
+    <!-- 更新日志弹窗 -->
+    <div id="changelogModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="liquid-glass p-8 max-w-md mx-4 max-h-96 overflow-y-auto">
+            <h3 class="text-2xl font-bold text-white mb-6">更新日志</h3>
+            <div class="space-y-4 text-white/80 text-sm">
+                <div>
+                    <h4 class="font-semibold text-white mb-2">v1.0.0 (2025-11-27)</h4>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>✨ 初始版本发布</li>
+                        <li>🎨 支持5种配色方案切换</li>
+                        <li>💌 用户登录和身份验证</li>
+                        <li>📝 日常发布和管理功能</li>
+                        <li>📸 照片上传和爱心汇聚</li>
+                        <li>💑 200个情侣任务清单</li>
+                        <li>📍 一键报备位置功能</li>
+                        <li>🔐 密码修改功能</li>
+                        <li>✨ 液态玻璃视觉效果</li>
+                        <li>🎭 Q弹动画交互</li>
+                    </ul>
+                </div>
+            </div>
+            <button id="closeChangelog" class="mt-6 w-full py-2 px-4 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors">
+                关闭
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // 配色方案配置
+        const colorSchemes = {
+            romantic: {
+                gradient: 'romantic-gradient',
+                colors: {
+                    primary: '#FFB6C1',
+                    secondary: '#FFD700',
+                    background: '#FFF0F5',
+                    text: '#8B4513'
+                }
+            },
+            sky: {
+                gradient: 'sky-gradient',
+                colors: {
+                    primary: '#87CEEB',
+                    secondary: '#4682B4',
+                    background: '#F0F8FF',
+                    text: '#191970'
+                }
+            },
+            dark: {
+                gradient: 'dark-gradient',
+                colors: {
+                    primary: '#9370DB',
+                    secondary: '#4B0082',
+                    background: '#2F2F2F',
+                    text: '#FFFFFF'
+                }
+            },
+            light: {
+                gradient: 'light-gradient',
+                colors: {
+                    primary: '#98FB98',
+                    secondary: '#32CD32',
+                    background: '#F5FFFA',
+                    text: '#2F4F4F'
+                }
+            },
+            warm: {
+                gradient: 'warm-gradient',
+                colors: {
+                    primary: '#FFA500',
+                    secondary: '#FF6347',
+                    background: '#FFF8DC',
+                    text: '#8B0000'
+                }
+            }
+        };
+        
+        let currentScheme = 'romantic';
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeParticles();
+            initializeTextAnimation();
+            initializeColorScheme();
+            initializeEventListeners();
+            
+            // 检查是否已登录
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                window.location.href = 'main.html';
+            }
+        });
+        
+        // 初始化粒子效果
+        function initializeParticles() {
+            const container = document.getElementById('particles-container');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'absolute w-1 h-1 bg-white/20 rounded-full';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animation = `float ${6 + Math.random() * 4}s ease-in-out infinite`;
+                container.appendChild(particle);
+            }
+        }
+        
+        // 初始化文字动画
+        function initializeTextAnimation() {
+            Splitting();
+            
+            anime({
+                targets: '[data-splitting] .char',
+                translateY: [-100, 0],
+                opacity: [0, 1],
+                easing: 'easeOutExpo',
+                duration: 1400,
+                delay: (el, i) => 100 + 30 * i
+            });
+        }
+        
+        // 初始化配色方案
+        function initializeColorScheme() {
+            const savedScheme = localStorage.getItem('colorScheme') || 'romantic';
+            applyColorScheme(savedScheme);
+        }
+        
+        // 应用配色方案
+        function applyColorScheme(scheme) {
+            const body = document.body;
+            const oldScheme = currentScheme;
+            
+            // 移除旧方案
+            if (oldScheme) {
+                body.classList.remove(colorSchemes[oldScheme].gradient);
+            }
+            
+            // 应用新方案
+            body.classList.add(colorSchemes[scheme].gradient);
+            currentScheme = scheme;
+            
+            // 更新选择器状态
+            document.querySelectorAll('.scheme-selector').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`[data-scheme="${scheme}"]`).classList.add('active');
+            
+            // 保存到本地存储
+            localStorage.setItem('colorScheme', scheme);
+            
+            // 添加切换动画
+            anime({
+                targets: '.liquid-glass',
+                scale: [0.95, 1],
+                duration: 500,
+                easing: 'easeOutElastic(1, .8)'
+            });
+        }
+        
+        // 初始化事件监听器
+        function initializeEventListeners() {
+            // 配色方案切换
+            document.querySelectorAll('.scheme-selector').forEach(selector => {
+                selector.addEventListener('click', function() {
+                    const scheme = this.dataset.scheme;
+                    applyColorScheme(scheme);
+                });
+            });
+            
+            // 登录表单
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // 更新日志
+            document.getElementById('changelogBtn').addEventListener('click', showChangelog);
+            document.getElementById('closeChangelog').addEventListener('click', hideChangelog);
+            
+            // 点击背景关闭更新日志
+            document.getElementById('changelogModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideChangelog();
+                }
+            });
+        }
+        
+        // 处理登录
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // 用户验证
+            const validUsers = {
+                '林粤冬': '2006111620250601',
+                '蒲振宇': '2008062220250601'
+            };
+            
+            if (validUsers[username] && validUsers[username] === password) {
+                // 登录成功
+                localStorage.setItem('currentUser', username);
+                localStorage.setItem('loginTime', new Date().toISOString());
+                
+                // 成功动画
+                anime({
+                    targets: '.liquid-glass',
+                    scale: [1, 1.1, 0],
+                    opacity: [1, 1, 0],
+                    duration: 800,
+                    easing: 'easeInOutQuad',
+                    complete: function() {
+                        window.location.href = 'main.html';
+                    }
+                });
+                
+                // 添加成功音效（如果有的话）
+                playSuccessSound();
+                
+            } else {
+                // 登录失败
+                errorMessage.textContent = '用户名或密码错误，请重新输入 💔';
+                errorMessage.classList.remove('hidden');
+                
+                // 错误动画
+                anime({
+                    targets: '#loginForm',
+                    translateX: [-10, 10, -10, 10, 0],
+                    duration: 500,
+                    easing: 'easeInOutQuad'
+                });
+                
+                // 清空密码框
+                document.getElementById('password').value = '';
+                
+                // 3秒后隐藏错误信息
+                setTimeout(() => {
+                    errorMessage.classList.add('hidden');
+                }, 3000);
+            }
+        }
+        
+        // 显示更新日志
+        function showChangelog() {
+            document.getElementById('changelogModal').classList.remove('hidden');
+            
+            anime({
+                targets: '#changelogModal .liquid-glass',
+                scale: [0.8, 1],
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeOutElastic(1, .8)'
+            });
+        }
+        
+        // 隐藏更新日志
+        function hideChangelog() {
+            anime({
+                targets: '#changelogModal .liquid-glass',
+                scale: [1, 0.8],
+                opacity: [1, 0],
+                duration: 300,
+                easing: 'easeInOutQuad',
+                complete: function() {
+                    document.getElementById('changelogModal').classList.add('hidden');
+                }
+            });
+        }
+        
+        // 播放成功音效（模拟）
+        function playSuccessSound() {
+            // 创建音频上下文播放简单的成功音效
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+        
+        // 添加键盘快捷键支持
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

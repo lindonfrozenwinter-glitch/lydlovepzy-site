@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我们的甜蜜时光 - 一键报备</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Noto Serif SC', 'Inter', sans-serif;
+        }
+        
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .romantic-gradient {
+            background: linear-gradient(135deg, #FFB6C1 0%, #FFD700 50%, #FFA500 100%);
+        }
+        
+        .sky-gradient {
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 50%, #191970 100%);
+        }
+        
+        .dark-gradient {
+            background: linear-gradient(135deg, #9370DB 0%, #4B0082 50%, #2F2F2F 100%);
+        }
+        
+        .light-gradient {
+            background: linear-gradient(135deg, #98FB98 0%, #32CD32 50%, #F5FFFA 100%);
+        }
+        
+        .warm-gradient {
+            background: linear-gradient(135deg, #FFA500 0%, #FF6347 50%, #FFF8DC 100%);
+        }
+        
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+            80%, 100% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
+        }
+        
+        .pulse-dot {
+            animation: pulse-dot 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+        
+        @keyframes pulse-dot {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .location-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .location-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 2px;
+        }
+        
+        .btn-bounce {
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .btn-bounce:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-bounce:active {
+            transform: scale(0.95);
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .success-checkmark {
+            animation: checkmark 0.6s ease-in-out;
+        }
+        
+        @keyframes checkmark {
+            0% { transform: scale(0) rotate(45deg); }
+            50% { transform: scale(1.2) rotate(45deg); }
+            100% { transform: scale(1) rotate(45deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen transition-all duration-1000 romantic-gradient">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 liquid-glass mx-4 mt-4 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-2xl font-bold text-white">💕 我们的甜蜜时光</h1>
+                <span id="currentUser" class="text-white/80 text-sm"></span>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                <a href="main.html" class="nav-item text-white hover:text-white/80 font-medium">首页</a>
+                <a href="write.html" class="nav-item text-white hover:text-white/80 font-medium">写日常</a>
+                <a href="together.html" class="nav-item text-white hover:text-white/80 font-medium">我们一起做</a>
+                <a href="report.html" class="nav-item active text-white hover:text-white/80 font-medium">一键报备</a>
+                <button id="logoutBtn" class="text-white/80 hover:text-white transition-colors">退出</button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 主内容区域 -->
+    <main class="pt-24 pb-8 px-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- 标题区域 -->
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-white mb-4 floating-animation">
+                    一键报备位置 📍
+                </h2>
+                <p class="text-white/80 text-lg">
+                    让TA知道你在哪里，多一份安心，多一份甜蜜
+                </p>
+            </div>
+            
+            <!-- 报备按钮区域 -->
+            <div class="text-center mb-12">
+                <div class="relative inline-block">
+                    <!-- 脉冲环效果 -->
+                    <div class="absolute inset-0 rounded-full bg-white/20 pulse-ring"></div>
+                    <div class="absolute inset-2 rounded-full bg-white/30 pulse-ring" style="animation-delay: 0.5s;"></div>
+                    
+                    <!-- 主按钮 -->
+                    <button id="reportBtn" 
+                            class="relative z-10 w-48 h-48 rounded-full bg-gradient-to-br from-pink-400 to-yellow-400 hover:from-pink-500 hover:to-yellow-500 text-white text-xl font-bold shadow-2xl btn-bounce pulse-dot">
+                        <div class="flex flex-col items-center">
+                            <div class="text-4xl mb-2">📍</div>
+                            <div>一键报备</div>
+                            <div class="text-sm opacity-80 mt-1">点击获取位置</div>
+                        </div>
+                    </button>
+                </div>
+                
+                <div class="mt-6 text-white/70">
+                    <p>📱 需要获取您的位置信息</p>
+                    <p class="text-sm mt-1">请允许浏览器访问位置权限</p>
+                </div>
+            </div>
+            
+            <!-- 位置信息展示区域 -->
+            <div id="locationInfo" class="hidden">
+                <div class="liquid-glass p-6 mb-6">
+                    <h3 class="text-2xl font-bold text-white mb-4 text-center">📍 位置信息</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="location-card">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="text-2xl">🗺️</div>
+                                <h4 class="text-lg font-semibold text-white">大致位置</h4>
+                            </div>
+                            <p id="generalLocation" class="text-white/80"></p>
+                        </div>
+                        
+                        <div class="location-card">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="text-2xl">📌</div>
+                                <h4 class="text-lg font-semibold text-white">精确坐标</h4>
+                            </div>
+                            <p id="coordinates" class="text-white/80 font-mono text-sm"></p>
+                        </div>
+                        
+                        <div class="location-card">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="text-2xl">⏰</div>
+                                <h4 class="text-lg font-semibold text-white">报备时间</h4>
+                            </div>
+                            <p id="reportTime" class="text-white/80"></p>
+                        </div>
+                        
+                        <div class="location-card">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="text-2xl">👤</div>
+                                <h4 class="text-lg font-semibold text-white">报备用户</h4>
+                            </div>
+                            <p id="reportUser" class="text-white/80"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 text-center">
+                        <button id="confirmReportBtn" 
+                                class="px-8 py-3 bg-gradient-to-r from-green-400 to-blue-400 hover:from-green-500 hover:to-blue-500 text-white rounded-lg btn-bounce">
+                            确认报备 ✅
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 历史报备记录 -->
+            <div class="liquid-glass p-6">
+                <h3 class="text-2xl font-bold text-white mb-6 text-center">📋 报备历史</h3>
+                
+                <div id="reportHistory">
+                    <div id="noReportsMessage" class="text-center py-8">
+                        <div class="text-4xl mb-4">📍</div>
+                        <p class="text-white/60">还没有报备记录</p>
+                        <p class="text-white/60 text-sm mt-1">点击上方按钮开始第一次报备</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 温馨提示 -->
+            <div class="mt-8 liquid-glass p-6">
+                <h3 class="text-xl font-bold text-white mb-4">💡 温馨提示</h3>
+                <div class="text-white/80 space-y-2">
+                    <p>• 报备功能需要获取您的地理位置权限</p>
+                    <p>• 如果无法获取位置，请检查浏览器设置或网络连接</p>
+                    <p>• 报备信息会以日常形式发布，且不可删除</p>
+                    <p>• 为了保护隐私，请谨慎使用此功能</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 加载中弹窗 -->
+    <div id="loadingModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="liquid-glass p-8 text-center">
+            <div class="loading-spinner text-4xl mb-4">🌍</div>
+            <h3 class="text-xl font-bold text-white mb-2">正在获取位置...</h3>
+            <p class="text-white/80">请稍候，正在努力定位中...</p>
+        </div>
+    </div>
+    
+    <!-- 成功报备弹窗 -->
+    <div id="successModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="liquid-glass p-8 max-w-md mx-4 text-center">
+            <div class="text-6xl mb-4 success-checkmark">✅</div>
+            <h3 class="text-2xl font-bold text-white mb-4">报备成功！</h3>
+            <p class="text-white/80 mb-6">你的位置信息已经成功报备～</p>
+            <div class="space-y-3">
+                <button onclick="continueReport()" 
+                        class="w-full py-3 px-6 bg-white/20 hover:bg-white/30 text-white rounded-lg btn-bounce">
+                    继续报备 📍
+                </button>
+                <button onclick="goToMain()" 
+                        class="w-full py-3 px-6 bg-gradient-to-r from-pink-400 to-yellow-400 hover:from-pink-500 hover:to-yellow-500 text-white rounded-lg btn-bounce">
+                    查看主页 🏠
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 全局变量
+        let currentUser = '';
+        let userIdentity = '';
+        let currentLocation = null;
+        
+        // 用户配置
+        const userConfig = {
+            '林粤冬': { identity: '狮王' },
+            '蒲振宇': { identity: '小鱼' }
+        };
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            loadReportHistory();
+            initializeEventListeners();
+        });
+        
+        // 初始化应用
+        function initializeApp() {
+            currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            userIdentity = userConfig[currentUser].identity;
+            document.getElementById('currentUser').textContent = `${currentUser} (${userIdentity})`;
+            
+            // 设置页面配色
+            const savedScheme = localStorage.getItem('colorScheme') || 'romantic';
+            applyColorScheme(savedScheme);
+        }
+        
+        // 应用配色方案
+        function applyColorScheme(scheme) {
+            const body = document.body;
+            body.className = body.className.replace(/\b\w+-gradient\b/g, '');
+            body.classList.add(`${scheme}-gradient`);
+        }
+        
+        // 初始化事件监听器
+        function initializeEventListeners() {
+            // 退出登录
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // 报备按钮
+            document.getElementById('reportBtn').addEventListener('click', getLocation);
+            
+            // 确认报备按钮
+            document.getElementById('confirmReportBtn').addEventListener('click', confirmReport);
+        }
+        
+        // 获取位置信息
+        function getLocation() {
+            // 显示加载弹窗
+            document.getElementById('loadingModal').classList.remove('hidden');
+            
+            if (!navigator.geolocation) {
+                showError('您的浏览器不支持地理位置功能');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                handlePositionSuccess,
+                handlePositionError,
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 300000
+                }
+            );
+        }
+        
+        // 处理位置获取成功
+        function handlePositionSuccess(position) {
+            const { latitude, longitude, accuracy } = position.coords;
+            
+            currentLocation = {
+                latitude,
+                longitude,
+                accuracy,
+                timestamp: new Date().toISOString()
+            };
+            
+            // 隐藏加载弹窗
+            document.getElementById('loadingModal').classList.add('hidden');
+            
+            // 显示位置信息
+            displayLocationInfo();
+            
+            // 播放成功音效
+            playLocationSound();
+        }
+        
+        // 处理位置获取失败
+        function handlePositionError(error) {
+            document.getElementById('loadingModal').classList.add('hidden');
+            
+            let errorMessage = '';
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = '位置权限被拒绝，请检查浏览器设置';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = '位置信息不可用，请检查网络连接';
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = '获取位置超时，请重试';
+                    break;
+                default:
+                    errorMessage = '获取位置失败，请重试';
+                    break;
+            }
+            
+            showError(errorMessage);
+        }
+        
+        // 显示位置信息
+        function displayLocationInfo() {
+            const { latitude, longitude, accuracy, timestamp } = currentLocation;
+            
+            // 格式化地址（这里使用简单的逆地理编码描述）
+            const generalLocation = `纬度: ${latitude.toFixed(6)}°N, 经度: ${longitude.toFixed(6)}°E`;
+            const coordinates = `${latitude.toFixed(8)}, ${longitude.toFixed(8)}`;
+            const reportTime = new Date(timestamp).toLocaleString('zh-CN');
+            
+            // 更新UI
+            document.getElementById('generalLocation').textContent = generalLocation;
+            document.getElementById('coordinates').textContent = coordinates;
+            document.getElementById('reportTime').textContent = reportTime;
+            document.getElementById('reportUser').textContent = `${currentUser} (${userIdentity})`;
+            
+            // 显示位置信息区域
+            document.getElementById('locationInfo').classList.remove('hidden');
+            
+            // 滚动到位置信息区域
+            document.getElementById('locationInfo').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+            
+            // 添加显示动画
+            anime({
+                targets: '#locationInfo',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 600,
+                easing: 'easeOutElastic(1, .8)'
+            });
+        }
+        
+        // 确认报备
+        function confirmReport() {
+            if (!currentLocation) {
+                showError('没有可用的位置信息');
+                return;
+            }
+            
+            const { latitude, longitude, timestamp } = currentLocation;
+            
+            // 创建报备日常
+            const reportDaily = {
+                id: Date.now(),
+                sender: userIdentity,
+                author: currentUser,
+                title: '报备位置',
+                content: `📍 位置报备\n\n大致位置：纬度 ${latitude.toFixed(6)}°N, 经度 ${longitude.toFixed(6)}°E\n\n精确坐标：${latitude.toFixed(8)}, ${longitude.toFixed(8)}\n\n报备时间：${new Date(timestamp).toLocaleString('zh-CN')}`,
+                date: timestamp,
+                type: 'report'
+            };
+            
+            // 保存到日常列表
+            const savedPosts = localStorage.getItem('dailyPosts');
+            const dailyPosts = savedPosts ? JSON.parse(savedPosts) : [];
+            dailyPosts.push(reportDaily);
+            localStorage.setItem('dailyPosts', JSON.stringify(dailyPosts));
+            
+            // 保存到报备历史
+            const savedReports = localStorage.getItem('reportHistory') || '[]';
+            const reportHistory = JSON.parse(savedReports);
+            reportHistory.unshift({
+                id: reportDaily.id,
+                user: currentUser,
+                identity: userIdentity,
+                location: currentLocation,
+                timestamp: timestamp
+            });
+            localStorage.setItem('reportHistory', JSON.stringify(reportHistory));
+            
+            // 显示成功弹窗
+            showSuccessModal();
+            
+            // 重置状态
+            resetReportState();
+            
+            // 刷新报备历史
+            loadReportHistory();
+        }
+        
+        // 加载报备历史
+        function loadReportHistory() {
+            const savedReports = localStorage.getItem('reportHistory') || '[]';
+            const reportHistory = JSON.parse(savedReports);
+            const reportHistoryContainer = document.getElementById('reportHistory');
+            const noReportsMessage = document.getElementById('noReportsMessage');
+            
+            if (reportHistory.length === 0) {
+                noReportsMessage.classList.remove('hidden');
+                return;
+            }
+            
+            noReportsMessage.classList.add('hidden');
+            
+            reportHistoryContainer.innerHTML = reportHistory.map(report => {
+                const date = new Date(report.timestamp);
+                const formattedDate = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+                
+                return `
+                    <div class="location-card mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-lg">${report.identity === '狮王' ? '🦁' : '🐟'}</span>
+                                <span class="font-semibold text-white">${report.user} (${report.identity})</span>
+                            </div>
+                            <span class="text-white/60 text-sm">${formattedDate}</span>
+                        </div>
+                        <div class="text-white/80 text-sm">
+                            <div>📍 纬度: ${report.location.latitude.toFixed(6)}°N, 经度: ${report.location.longitude.toFixed(6)}°E</div>
+                            <div class="mt-1">🎯 精度: ${Math.round(report.location.accuracy)}米</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 重置报备状态
+        function resetReportState() {
+            currentLocation = null;
+            document.getElementById('locationInfo').classList.add('hidden');
+            
+            // 重置表单
+            document.getElementById('generalLocation').textContent = '';
+            document.getElementById('coordinates').textContent = '';
+            document.getElementById('reportTime').textContent = '';
+            document.getElementById('reportUser').textContent = '';
+        }
+        
+        // 显示成功弹窗
+        function showSuccessModal() {
+            document.getElementById('successModal').classList.remove('hidden');
+            
+            anime({
+                targets: '#successModal .liquid-glass',
+                scale: [0.8, 1],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutElastic(1, .8)'
+            });
+            
+            // 播放成功音效
+            playSuccessSound();
+        }
+        
+        // 继续报备
+        function continueReport() {
+            document.getElementById('successModal').classList.add('hidden');
+            resetReportState();
+        }
+        
+        // 返回主页
+        function goToMain() {
+            window.location.href = 'main.html';
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 z-50 px-6 py-3 rounded-lg bg-red-500/80 text-white transform translate-x-full transition-transform duration-300';
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // 显示动画
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // 隐藏动画
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+        
+        // 播放位置获取音效
+        function playLocationSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // 播放定位音效
+                const frequencies = [440, 554.37, 659.25]; // A4, C#5, E5
+                
+                frequencies.forEach((freq, index) => {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.3);
+                    }, index * 100);
+                });
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+        
+        // 播放成功音效
+        function playSuccessSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // 播放成功音效
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                
+                notes.forEach((freq, index) => {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.2);
+                    }, index * 100);
+                });
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+        
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('loginTime');
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // 页面加载完成后的入场动画
+        anime({
+            targets: '.liquid-glass',
+            translateY: [50, 0],
+            opacity: [0, 1],
+            duration: 800,
+            easing: 'easeOutElastic(1, .8)'
+        });
+        
+        anime({
+            targets: '#reportBtn',
+            scale: [0.8, 1],
+            opacity: [0, 1],
+            duration: 1000,
+            easing: 'easeOutElastic(1, .8)',
+            delay: 300
+        });
+    </script>
+</body>
+</html>

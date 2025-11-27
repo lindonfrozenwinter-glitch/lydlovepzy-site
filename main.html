@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我们的甜蜜时光 - 主页</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Noto Serif SC', 'Inter', sans-serif;
+        }
+        
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .romantic-gradient {
+            background: linear-gradient(135deg, #FFB6C1 0%, #FFD700 50%, #FFA500 100%);
+        }
+        
+        .sky-gradient {
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 50%, #191970 100%);
+        }
+        
+        .dark-gradient {
+            background: linear-gradient(135deg, #9370DB 0%, #4B0082 50%, #2F2F2F 100%);
+        }
+        
+        .light-gradient {
+            background: linear-gradient(135deg, #98FB98 0%, #32CD32 50%, #F5FFFA 100%);
+        }
+        
+        .warm-gradient {
+            background: linear-gradient(135deg, #FFA500 0%, #FF6347 50%, #FFF8DC 100%);
+        }
+        
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .photo-heart {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 20px;
+        }
+        
+        .photo-item {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 15px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .photo-item:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .daily-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .daily-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        .sender-lion {
+            border-left: 4px solid #FFD700;
+        }
+        
+        .sender-fish {
+            border-left: 4px solid #87CEEB;
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 2px;
+        }
+        
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .upload-area.dragover {
+            border-color: #FFD700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+        
+        .delete-btn {
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .daily-card:hover .delete-btn {
+            opacity: 1;
+        }
+        
+        .heart-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .photo-heart {
+                height: 300px;
+            }
+            
+            .photo-item {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen transition-all duration-1000 romantic-gradient">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 liquid-glass mx-4 mt-4 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-2xl font-bold text-white">💕 我们的甜蜜时光</h1>
+                <span id="currentUser" class="text-white/80 text-sm"></span>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                <a href="main.html" class="nav-item active text-white hover:text-white/80 font-medium">首页</a>
+                <a href="write.html" class="nav-item text-white hover:text-white/80 font-medium">写日常</a>
+                <a href="together.html" class="nav-item text-white hover:text-white/80 font-medium">我们一起做</a>
+                <a href="report.html" class="nav-item text-white hover:text-white/80 font-medium">一键报备</a>
+                <button id="logoutBtn" class="text-white/80 hover:text-white transition-colors">退出</button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 主内容区域 -->
+    <main class="pt-24 pb-8 px-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- 欢迎区域 -->
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-white mb-4 floating-animation">
+                    欢迎来到我们的甜蜜世界 💖
+                </h2>
+                <p class="text-white/80 text-lg">
+                    记录每一个美好瞬间，见证我们的爱情故事
+                </p>
+            </div>
+            
+            <!-- 内容网格 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 日常列表区域 -->
+                <div class="lg:col-span-2">
+                    <div class="liquid-glass p-6 card-hover">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-2xl font-bold text-white">我们的日常 💌</h3>
+                            <a href="write.html" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all">
+                                写日常 ✍️
+                            </a>
+                        </div>
+                        
+                        <div id="dailyList" class="space-y-4">
+                            <!-- 日常内容将动态加载 -->
+                        </div>
+                        
+                        <div id="noDailyMessage" class="text-center py-12 hidden">
+                            <div class="text-white/60 text-lg mb-4">还没有日常记录哦～</div>
+                            <a href="write.html" class="inline-block px-6 py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all">
+                                写下第一个日常 💕
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 照片墙区域 -->
+                <div class="lg:col-span-1">
+                    <div class="liquid-glass p-6 card-hover">
+                        <h3 class="text-2xl font-bold text-white mb-6">我们的照片 📸</h3>
+                        
+                        <!-- 照片上传区域 -->
+                        <div id="uploadArea" class="upload-area mb-6">
+                            <input type="file" id="photoInput" accept="image/*" multiple class="hidden">
+                            <div class="text-white/80">
+                                <div class="text-4xl mb-2">📷</div>
+                                <p>点击或拖拽上传照片</p>
+                                <p class="text-sm text-white/60 mt-1">支持多张图片</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 照片展示区域 -->
+                        <div class="photo-heart liquid-glass">
+                            <div id="heartContainer" class="heart-container">
+                                <!-- 照片将动态加载 -->
+                            </div>
+                            <div id="noPhotosMessage" class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-center text-white/60">
+                                    <div class="text-4xl mb-2">💕</div>
+                                    <p>还没有照片哦～</p>
+                                    <p class="text-sm mt-1">上传照片汇聚成爱心</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center">
+                            <span class="text-white/60 text-sm">
+                                已有 <span id="photoCount">0</span> 张照片
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // 全局变量
+        let currentUser = '';
+        let userIdentity = '';
+        let dailyPosts = [];
+        let photos = [];
+        
+        // 用户配置
+        const userConfig = {
+            '林粤冬': { identity: '狮王', canDelete: ['狮王'] },
+            '蒲振宇': { identity: '小鱼', canDelete: ['小鱼'] }
+        };
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            loadUserData();
+            initializeEventListeners();
+            initializeHeartPhotos();
+        });
+        
+        // 初始化应用
+        function initializeApp() {
+            currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            userIdentity = userConfig[currentUser].identity;
+            document.getElementById('currentUser').textContent = `${currentUser} (${userIdentity})`;
+            
+            // 设置页面配色
+            const savedScheme = localStorage.getItem('colorScheme') || 'romantic';
+            applyColorScheme(savedScheme);
+        }
+        
+        // 应用配色方案
+        function applyColorScheme(scheme) {
+            const body = document.body;
+            body.className = body.className.replace(/\b\w+-gradient\b/g, '');
+            body.classList.add(`${scheme}-gradient`);
+        }
+        
+        // 加载用户数据
+        function loadUserData() {
+            // 加载日常数据
+            const savedPosts = localStorage.getItem('dailyPosts');
+            dailyPosts = savedPosts ? JSON.parse(savedPosts) : [];
+            
+            // 如果没有日常，添加一条初始日常
+            if (dailyPosts.length === 0) {
+                const initialPost = {
+                    id: Date.now(),
+                    sender: '狮王',
+                    author: '林粤冬',
+                    title: '至我最爱的小鱼宝宝',
+                    content: '两情若是久长时，又岂在朝朝暮暮。约定好了，等你被风吹入我的怀中，带着你与我炽热的梦想，我会为你抚去一路的风霜，共赴这人间惊艳。',
+                    date: new Date().toISOString(),
+                    type: 'normal'
+                };
+                dailyPosts.push(initialPost);
+                localStorage.setItem('dailyPosts', JSON.stringify(dailyPosts));
+            }
+            
+            // 加载照片数据
+            const savedPhotos = localStorage.getItem('photos');
+            photos = savedPhotos ? JSON.parse(savedPhotos) : [];
+            
+            renderDailyList();
+            renderPhotos();
+        }
+        
+        // 渲染日常列表
+        function renderDailyList() {
+            const dailyList = document.getElementById('dailyList');
+            const noDailyMessage = document.getElementById('noDailyMessage');
+            
+            if (dailyPosts.length === 0) {
+                dailyList.innerHTML = '';
+                noDailyMessage.classList.remove('hidden');
+                return;
+            }
+            
+            noDailyMessage.classList.add('hidden');
+            
+            // 按时间倒序排列
+            const sortedPosts = [...dailyPosts].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            dailyList.innerHTML = sortedPosts.map(post => {
+                const date = new Date(post.date);
+                const formattedDate = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+                
+                const canDelete = userConfig[currentUser].canDelete.includes(post.sender) || post.type === 'report';
+                
+                return `
+                    <div class="daily-card ${post.sender === '狮王' ? 'sender-lion' : 'sender-fish'}">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <span class="text-lg">${post.sender === '狮王' ? '🦁' : '🐟'}</span>
+                                    <span class="font-semibold text-white">${post.sender}</span>
+                                    <span class="text-white/60 text-sm">${formattedDate}</span>
+                                    ${post.type === 'report' ? '<span class="text-xs bg-blue-500/30 text-white px-2 py-1 rounded">报备</span>' : ''}
+                                </div>
+                                <h4 class="text-xl font-bold text-white mb-2">${post.title}</h4>
+                                <p class="text-white/80 leading-relaxed">${post.content.replace(/\n/g, '<br>')}</p>
+                            </div>
+                            ${canDelete && post.type !== 'report' ? `
+                                <button onclick="deleteDaily(${post.id})" 
+                                        class="delete-btn ml-4 px-3 py-1 bg-red-500/50 hover:bg-red-500/70 text-white rounded-lg text-sm transition-all">
+                                    删除
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // 添加入场动画
+            anime({
+                targets: '.daily-card',
+                translateY: [50, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(100),
+                duration: 600,
+                easing: 'easeOutElastic(1, .8)'
+            });
+        }
+        
+        // 渲染照片
+        function renderPhotos() {
+            const heartContainer = document.getElementById('heartContainer');
+            const noPhotosMessage = document.getElementById('noPhotosMessage');
+            const photoCount = document.getElementById('photoCount');
+            
+            photoCount.textContent = photos.length;
+            
+            if (photos.length === 0) {
+                heartContainer.innerHTML = '';
+                noPhotosMessage.classList.remove('hidden');
+                return;
+            }
+            
+            noPhotosMessage.classList.add('hidden');
+            
+            // 创建心形布局
+            const heartPositions = generateHeartPositions(photos.length);
+            
+            heartContainer.innerHTML = photos.map((photo, index) => {
+                const position = heartPositions[index] || { x: Math.random() * 300, y: Math.random() * 300 };
+                return `
+                    <img src="${photo.url}" 
+                         class="photo-item" 
+                         style="left: ${position.x}px; top: ${position.y}px;"
+                         onclick="viewPhoto('${photo.url}')"
+                         alt="我们的照片">
+                `;
+            }).join('');
+            
+            // 添加照片入场动画
+            anime({
+                targets: '.photo-item',
+                scale: [0, 1],
+                rotate: [180, 0],
+                delay: anime.stagger(50),
+                duration: 800,
+                easing: 'easeOutElastic(1, .8)'
+            });
+        }
+        
+        // 生成心形位置
+        function generateHeartPositions(count) {
+            const positions = [];
+            const centerX = 150;
+            const centerY = 150;
+            const scale = 120;
+            
+            for (let i = 0; i < count; i++) {
+                const t = (i / count) * 2 * Math.PI;
+                // 心形参数方程
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                
+                positions.push({
+                    x: centerX + x * scale / 16 - 40, // 调整位置
+                    y: centerY + y * scale / 16 - 40
+                });
+            }
+            
+            return positions;
+        }
+        
+        // 初始化事件监听器
+        function initializeEventListeners() {
+            // 退出登录
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // 照片上传
+            const uploadArea = document.getElementById('uploadArea');
+            const photoInput = document.getElementById('photoInput');
+            
+            uploadArea.addEventListener('click', () => photoInput.click());
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('drop', handleDrop);
+            photoInput.addEventListener('change', handleFileSelect);
+        }
+        
+        // 拖拽上传处理
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files);
+            handleFiles(files);
+        }
+        
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            handleFiles(files);
+        }
+        
+        function handleFiles(files) {
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            
+            imageFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photo = {
+                        id: Date.now() + Math.random(),
+                        url: e.target.result,
+                        uploadDate: new Date().toISOString(),
+                        uploader: currentUser
+                    };
+                    
+                    photos.push(photo);
+                    localStorage.setItem('photos', JSON.stringify(photos));
+                    renderPhotos();
+                    
+                    // 上传成功动画
+                    showNotification('照片上传成功！📸', 'success');
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // 查看照片
+        function viewPhoto(url) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="relative max-w-4xl max-h-full">
+                    <img src="${url}" class="max-w-full max-h-full rounded-lg">
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            class="absolute top-4 right-4 text-white bg-black/50 rounded-full w-10 h-10 flex items-center justify-center hover:bg-black/70">
+                        ✕
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 点击背景关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+        // 删除日常
+        function deleteDaily(id) {
+            if (confirm('确定要删除这条日常吗？😢')) {
+                dailyPosts = dailyPosts.filter(post => post.id !== id);
+                localStorage.setItem('dailyPosts', JSON.stringify(dailyPosts));
+                renderDailyList();
+                showNotification('日常已删除', 'info');
+            }
+        }
+        
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('loginTime');
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg text-white transform translate-x-full transition-transform duration-300 ${
+                type === 'success' ? 'bg-green-500/80' : 
+                type === 'error' ? 'bg-red-500/80' : 
+                'bg-blue-500/80'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // 显示动画
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // 隐藏动画
+            setTimeout(() => {
+                notification.style.transform = 'translateX(full)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // 初始化照片爱心效果
+        function initializeHeartPhotos() {
+            // 添加鼠标移动时的照片散开效果
+            const heartContainer = document.getElementById('heartContainer');
+            
+            heartContainer.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const photos = this.querySelectorAll('.photo-item');
+                photos.forEach(photo => {
+                    const photoRect = photo.getBoundingClientRect();
+                    const photoX = photoRect.left - rect.left + photoRect.width / 2;
+                    const photoY = photoRect.top - rect.top + photoRect.height / 2;
+                    
+                    const distance = Math.sqrt(Math.pow(x - photoX, 2) + Math.pow(y - photoY, 2));
+                    
+                    if (distance < 50) {
+                        const angle = Math.atan2(photoY - y, photoX - x);
+                        const moveDistance = 30 - distance * 0.5;
+                        const newX = parseFloat(photo.style.left) + Math.cos(angle) * moveDistance;
+                        const newY = parseFloat(photo.style.top) + Math.sin(angle) * moveDistance;
+                        
+                        photo.style.left = Math.max(0, Math.min(300, newX)) + 'px';
+                        photo.style.top = Math.max(0, Math.min(300, newY)) + 'px';
+                        photo.style.zIndex = '10';
+                    } else {
+                        photo.style.zIndex = '1';
+                    }
+                });
+            });
+            
+            // 鼠标离开时照片恢复原位
+            heartContainer.addEventListener('mouseleave', function() {
+                renderPhotos();
+            });
+        }
+        
+        // 页面加载完成后的入场动画
+        anime({
+            targets: '.card-hover',
+            translateY: [50, 0],
+            opacity: [0, 1],
+            delay: anime.stagger(200),
+            duration: 800,
+            easing: 'easeOutElastic(1, .8)'
+        });
+    </script>
+</body>
+</html>

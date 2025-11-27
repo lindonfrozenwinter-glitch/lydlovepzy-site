@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我们的甜蜜时光 - 写日常</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Noto Serif SC', 'Inter', sans-serif;
+        }
+        
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .romantic-gradient {
+            background: linear-gradient(135deg, #FFB6C1 0%, #FFD700 50%, #FFA500 100%);
+        }
+        
+        .sky-gradient {
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 50%, #191970 100%);
+        }
+        
+        .dark-gradient {
+            background: linear-gradient(135deg, #9370DB 0%, #4B0082 50%, #2F2F2F 100%);
+        }
+        
+        .light-gradient {
+            background: linear-gradient(135deg, #98FB98 0%, #32CD32 50%, #F5FFFA 100%);
+        }
+        
+        .warm-gradient {
+            background: linear-gradient(135deg, #FFA500 0%, #FF6347 50%, #FFF8DC 100%);
+        }
+        
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .input-focus {
+            transition: all 0.3s ease;
+        }
+        
+        .input-focus:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-bounce {
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .btn-bounce:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-bounce:active {
+            transform: scale(0.95);
+        }
+        
+        .sender-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .sender-option:hover {
+            transform: translateY(-2px);
+        }
+        
+        .sender-option.selected {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sender-lion {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+        }
+        
+        .sender-fish {
+            background: linear-gradient(135deg, #87CEEB, #4682B4);
+        }
+        
+        .char-counter {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .char-counter.warning {
+            color: #FFA500;
+        }
+        
+        .char-counter.error {
+            color: #FF6347;
+        }
+        
+        .preview-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 2px;
+        }
+        
+        .success-animation {
+            animation: successPulse 1s ease-in-out;
+        }
+        
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body class="min-h-screen transition-all duration-1000 romantic-gradient">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 liquid-glass mx-4 mt-4 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-2xl font-bold text-white">💕 我们的甜蜜时光</h1>
+                <span id="currentUser" class="text-white/80 text-sm"></span>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                <a href="main.html" class="nav-item text-white hover:text-white/80 font-medium">首页</a>
+                <a href="write.html" class="nav-item active text-white hover:text-white/80 font-medium">写日常</a>
+                <a href="together.html" class="nav-item text-white hover:text-white/80 font-medium">我们一起做</a>
+                <a href="report.html" class="nav-item text-white hover:text-white/80 font-medium">一键报备</a>
+                <button id="logoutBtn" class="text-white/80 hover:text-white transition-colors">退出</button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 主内容区域 -->
+    <main class="pt-24 pb-8 px-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- 标题区域 -->
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-white mb-4 floating-animation">
+                    写下我们的点点滴滴 ✍️
+                </h2>
+                <p class="text-white/80 text-lg">
+                    用文字记录每一个美好瞬间，让爱情在文字中永恒
+                </p>
+            </div>
+            
+            <!-- 写日常表单 -->
+            <div class="liquid-glass p-8">
+                <form id="dailyForm" class="space-y-6">
+                    <!-- 发送人选择 -->
+                    <div>
+                        <label class="block text-white text-lg font-medium mb-4">选择发送人身份 💌</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div id="lionOption" class="sender-option sender-lion liquid-glass p-6 text-center">
+                                <div class="text-4xl mb-2">🦁</div>
+                                <h3 class="text-xl font-bold text-white mb-2">狮王</h3>
+                                <p class="text-white/80 text-sm">林粤冬专属身份</p>
+                            </div>
+                            <div id="fishOption" class="sender-option sender-fish liquid-glass p-6 text-center">
+                                <div class="text-4xl mb-2">🐟</div>
+                                <h3 class="text-xl font-bold text-white mb-2">小鱼</h3>
+                                <p class="text-white/80 text-sm">蒲振宇专属身份</p>
+                            </div>
+                        </div>
+                        <div id="senderError" class="text-red-300 text-sm mt-2 hidden">
+                            小坏蛋，不准偷偷替对方发日常嗷～
+                        </div>
+                    </div>
+                    
+                    <!-- 主题输入 -->
+                    <div>
+                        <label for="title" class="block text-white text-lg font-medium mb-2">主题 💬</label>
+                        <input type="text" id="title" 
+                               class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 input-focus"
+                               placeholder="给你的日常起个甜蜜的主题吧..." 
+                               maxlength="16" required>
+                        <div class="flex justify-between items-center mt-1">
+                            <span class="char-counter" id="titleCounter">0/16</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 正文输入 -->
+                    <div>
+                        <label for="content" class="block text-white text-lg font-medium mb-2">正文 📖</label>
+                        <textarea id="content" rows="10"
+                                  class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 input-focus resize-none"
+                                  placeholder="写下你们的故事，分享你的心情..." 
+                                  maxlength="2000" required></textarea>
+                        <div class="flex justify-between items-center mt-1">
+                            <span class="char-counter" id="contentCounter">0/2000</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 按钮区域 -->
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                        <button type="button" id="previewBtn" 
+                                class="flex-1 py-3 px-6 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-lg btn-bounce">
+                            预览 👀
+                        </button>
+                        <button type="submit" id="publishBtn" 
+                                class="flex-1 py-3 px-6 bg-gradient-to-r from-pink-400 to-yellow-400 hover:from-pink-500 hover:to-yellow-500 text-white font-semibold rounded-lg btn-bounce">
+                            发布日常 💕
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- 预览区域 -->
+                <div id="previewArea" class="hidden">
+                    <div class="preview-card">
+                        <h3 class="text-xl font-bold text-white mb-4">预览效果</h3>
+                        <div id="previewContent"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 提示信息 -->
+            <div class="mt-8 text-center">
+                <div class="liquid-glass p-6">
+                    <h3 class="text-xl font-bold text-white mb-4">💡 温馨提示</h3>
+                    <div class="text-white/80 space-y-2">
+                        <p>• 林粤冬只能以"狮王"身份发布日常</p>
+                        <p>• 蒲振宇只能以"小鱼"身份发布日常</p>
+                        <p>• 主题限制16个字以内，正文限制2000字以内</p>
+                        <p>• 发布后的日常会立即显示在主页</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 成功发布弹窗 -->
+    <div id="successModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="liquid-glass p-8 max-w-md mx-4 text-center">
+            <div class="text-6xl mb-4">🎉</div>
+            <h3 class="text-2xl font-bold text-white mb-4">发布成功！</h3>
+            <p class="text-white/80 mb-6">你的日常已经成功发布啦～</p>
+            <div class="space-y-3">
+                <button onclick="continueWriting()" 
+                        class="w-full py-3 px-6 bg-white/20 hover:bg-white/30 text-white rounded-lg btn-bounce">
+                    继续写日常 ✍️
+                </button>
+                <button onclick="goToMain()" 
+                        class="w-full py-3 px-6 bg-gradient-to-r from-pink-400 to-yellow-400 hover:from-pink-500 hover:to-yellow-500 text-white rounded-lg btn-bounce">
+                    查看主页 🏠
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 全局变量
+        let currentUser = '';
+        let userIdentity = '';
+        let selectedSender = '';
+        
+        // 用户配置
+        const userConfig = {
+            '林粤冬': { identity: '狮王', allowedSender: ['狮王'] },
+            '蒲振宇': { identity: '小鱼', allowedSender: ['小鱼'] }
+        };
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            initializeEventListeners();
+            initializeColorScheme();
+        });
+        
+        // 初始化应用
+        function initializeApp() {
+            currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            userIdentity = userConfig[currentUser].identity;
+            document.getElementById('currentUser').textContent = `${currentUser} (${userIdentity})`;
+            
+            // 根据用户身份设置默认选项
+            if (userIdentity === '狮王') {
+                selectSender('狮王');
+                document.getElementById('lionOption').classList.add('selected');
+            } else {
+                selectSender('小鱼');
+                document.getElementById('fishOption').classList.add('selected');
+            }
+        }
+        
+        // 初始化配色方案
+        function initializeColorScheme() {
+            const savedScheme = localStorage.getItem('colorScheme') || 'romantic';
+            applyColorScheme(savedScheme);
+        }
+        
+        // 应用配色方案
+        function applyColorScheme(scheme) {
+            const body = document.body;
+            body.className = body.className.replace(/\b\w+-gradient\b/g, '');
+            body.classList.add(`${scheme}-gradient`);
+        }
+        
+        // 初始化事件监听器
+        function initializeEventListeners() {
+            // 退出登录
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // 发送人选择
+            document.getElementById('lionOption').addEventListener('click', () => selectSender('狮王'));
+            document.getElementById('fishOption').addEventListener('click', () => selectSender('小鱼'));
+            
+            // 字符计数
+            document.getElementById('title').addEventListener('input', updateTitleCounter);
+            document.getElementById('content').addEventListener('input', updateContentCounter);
+            
+            // 预览按钮
+            document.getElementById('previewBtn').addEventListener('click', previewDaily);
+            
+            // 发布表单
+            document.getElementById('dailyForm').addEventListener('submit', publishDaily);
+        }
+        
+        // 选择发送人
+        function selectSender(sender) {
+            // 检查权限
+            if (!userConfig[currentUser].allowedSender.includes(sender)) {
+                document.getElementById('senderError').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('senderError').classList.add('hidden');
+                }, 3000);
+                return;
+            }
+            
+            selectedSender = sender;
+            
+            // 更新UI
+            document.querySelectorAll('.sender-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            if (sender === '狮王') {
+                document.getElementById('lionOption').classList.add('selected');
+            } else {
+                document.getElementById('fishOption').classList.add('selected');
+            }
+        }
+        
+        // 更新标题字符计数
+        function updateTitleCounter() {
+            const title = document.getElementById('title');
+            const counter = document.getElementById('titleCounter');
+            const length = title.value.length;
+            const maxLength = 16;
+            
+            counter.textContent = `${length}/${maxLength}`;
+            
+            // 更新样式
+            counter.className = 'char-counter';
+            if (length > maxLength * 0.8) {
+                counter.classList.add('warning');
+            }
+            if (length >= maxLength) {
+                counter.classList.add('error');
+            }
+        }
+        
+        // 更新正文字符计数
+        function updateContentCounter() {
+            const content = document.getElementById('content');
+            const counter = document.getElementById('contentCounter');
+            const length = content.value.length;
+            const maxLength = 2000;
+            
+            counter.textContent = `${length}/${maxLength}`;
+            
+            // 更新样式
+            counter.className = 'char-counter';
+            if (length > maxLength * 0.8) {
+                counter.classList.add('warning');
+            }
+            if (length >= maxLength) {
+                counter.classList.add('error');
+            }
+        }
+        
+        // 预览日常
+        function previewDaily() {
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+            
+            if (!selectedSender || !title || !content) {
+                showNotification('请完整填写所有信息', 'error');
+                return;
+            }
+            
+            const previewArea = document.getElementById('previewArea');
+            const previewContent = document.getElementById('previewContent');
+            
+            const now = new Date();
+            const formattedDate = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            previewContent.innerHTML = `
+                <div class="daily-card ${selectedSender === '狮王' ? 'sender-lion' : 'sender-fish'}">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <span class="text-lg">${selectedSender === '狮王' ? '🦁' : '🐟'}</span>
+                        <span class="font-semibold text-white">${selectedSender}</span>
+                        <span class="text-white/60 text-sm">${formattedDate}</span>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-2">${title}</h4>
+                    <p class="text-white/80 leading-relaxed">${content.replace(/\n/g, '<br>')}</p>
+                </div>
+            `;
+            
+            previewArea.classList.remove('hidden');
+            
+            // 预览动画
+            anime({
+                targets: '#previewArea',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 500,
+                easing: 'easeOutElastic(1, .8)'
+            });
+            
+            // 滚动到预览区域
+            previewArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // 发布日常
+        function publishDaily(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+            
+            // 验证
+            if (!selectedSender) {
+                showNotification('请选择发送人身份', 'error');
+                return;
+            }
+            
+            if (!userConfig[currentUser].allowedSender.includes(selectedSender)) {
+                showNotification('小坏蛋，不准偷偷替对方发日常嗷～', 'error');
+                return;
+            }
+            
+            if (!title) {
+                showNotification('请输入主题', 'error');
+                return;
+            }
+            
+            if (title.length > 16) {
+                showNotification('主题不能超过16个字', 'error');
+                return;
+            }
+            
+            if (!content) {
+                showNotification('请输入正文内容', 'error');
+                return;
+            }
+            
+            if (content.length > 2000) {
+                showNotification('正文不能超过2000字', 'error');
+                return;
+            }
+            
+            // 创建新日常
+            const newDaily = {
+                id: Date.now(),
+                sender: selectedSender,
+                author: currentUser,
+                title: title,
+                content: content,
+                date: new Date().toISOString(),
+                type: 'normal'
+            };
+            
+            // 保存到本地存储
+            const savedPosts = localStorage.getItem('dailyPosts');
+            const dailyPosts = savedPosts ? JSON.parse(savedPosts) : [];
+            dailyPosts.push(newDaily);
+            localStorage.setItem('dailyPosts', JSON.stringify(dailyPosts));
+            
+            // 显示成功弹窗
+            showSuccessModal();
+            
+            // 重置表单
+            resetForm();
+        }
+        
+        // 显示成功弹窗
+        function showSuccessModal() {
+            document.getElementById('successModal').classList.remove('hidden');
+            
+            anime({
+                targets: '#successModal .liquid-glass',
+                scale: [0.8, 1],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutElastic(1, .8)'
+            });
+            
+            // 播放成功音效
+            playSuccessSound();
+        }
+        
+        // 重置表单
+        function resetForm() {
+            document.getElementById('dailyForm').reset();
+            document.getElementById('previewArea').classList.add('hidden');
+            
+            // 重置选择状态
+            document.querySelectorAll('.sender-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // 重新设置默认选择
+            if (userIdentity === '狮王') {
+                document.getElementById('lionOption').classList.add('selected');
+                selectedSender = '狮王';
+            } else {
+                document.getElementById('fishOption').classList.add('selected');
+                selectedSender = '小鱼';
+            }
+            
+            // 重置计数器
+            updateTitleCounter();
+            updateContentCounter();
+        }
+        
+        // 继续写日常
+        function continueWriting() {
+            document.getElementById('successModal').classList.add('hidden');
+            resetForm();
+        }
+        
+        // 返回主页
+        function goToMain() {
+            window.location.href = 'main.html';
+        }
+        
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('loginTime');
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg text-white transform translate-x-full transition-transform duration-300 ${
+                type === 'success' ? 'bg-green-500/80' : 
+                type === 'error' ? 'bg-red-500/80' : 
+                'bg-blue-500/80'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // 显示动画
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // 隐藏动画
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // 播放成功音效
+        function playSuccessSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // 播放一段欢快的旋律
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, index) => {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.2);
+                    }, index * 100);
+                });
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+        
+        // 页面加载完成后的入场动画
+        anime({
+            targets: '.liquid-glass',
+            translateY: [50, 0],
+            opacity: [0, 1],
+            duration: 800,
+            easing: 'easeOutElastic(1, .8)'
+        });
+        
+        anime({
+            targets: '.sender-option',
+            scale: [0.8, 1],
+            opacity: [0, 1],
+            delay: anime.stagger(200),
+            duration: 600,
+            easing: 'easeOutElastic(1, .8)'
+        });
+    </script>
+</body>
+</html>
